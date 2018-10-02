@@ -9,7 +9,7 @@ const router = create();
 router.use(ignoreFavicon);
 router.use(setJsonApp);
 
-router.route('/', (req, res) => {
+router.get('/', (req, res) => {
   res.write(JSON.stringify({
     testing: 1
   }));
@@ -21,7 +21,6 @@ router.defaultRoute((req, res) => {
   res.write(JSON.stringify({
     error: "invalid Request"
   }));
-  res.end();
 })
 
 router.serve(3000);

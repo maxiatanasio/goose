@@ -2,14 +2,25 @@ const http = require('http');
 
 export default class Router {
 
+    //List of middlewares that apply before action is called
     middlewares = [];
+    //http request
     request;
+    //http response
     response;
+    //List of routes available
     routes = [];
+    //Route finded according to request
     matchRoute;
+    //Default function when no request is matched
     defaultFn;
+    //Array of private functions to test for private routes
+    privatesFns = []; 
+    //Port in which the server is created
+    port;
 
     serve = (port = 3000) => {
+        this.port = port;
         http.createServer(async (req, res) => {
             console.log("Request received");
             this.request = req;
@@ -21,7 +32,9 @@ export default class Router {
             this._findRoute();
             await this._executeRoute();
             this.response.end();
-        }).listen(port)
+        }).listen(this.port, () => {
+            console.log("Server created at port " + this.port);
+        });
 
     }
 
@@ -30,11 +43,24 @@ export default class Router {
     }
 
     route = (path, fn) => {
-        this.routes.push({
-            path,
-            fn
-        })
+        this.routes.push({path,fn,methods: ['GET', 'POST']})
     }
+
+    get = (path, fn) => {
+        this.routes.push({path,fn,methods: ['GET']})
+    };
+
+    post = (path, fn) => {
+        this.routes.push({path,fn,methods: ['POST']})
+    };
+
+    put = (path, fn) => {
+        this.routes.push({path,fn,methods: ['PUT']})
+    };
+
+    delete = (path, fn) => {
+        this.routes.push({path,fn,methods: ['DELETE']})
+    };
 
     defaultRoute = (fn) => {
         this.defaultFn = fn;
@@ -55,7 +81,7 @@ export default class Router {
 
     _findRoute = () => {
         this.matchRoute = this.routes.find((route) => {
-            return this.request.url === route.path;
+            return this.request.url === route.path && route.methods.includes(this.request.method);
         });
     }
 

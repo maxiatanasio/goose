@@ -11,7 +11,13 @@ const create = () => {
 }
 
 const connectToMongo = async () => {
-  await mongoose.connect(process.env.MONGO_CONNECT_STRING);
+  try {
+    await mongoose.connect(process.env.MONGO_CONNECT_STRING, {
+      useNewUrlParser: true
+    });
+  } catch(error) {
+    console.log(error);
+  }
 }
 
 const _loadModel = () => {
